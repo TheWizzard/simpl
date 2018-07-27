@@ -8,6 +8,7 @@ module.exports =  class Match {
         this.playerOnStrike = playerOnStrike;
         this.runsToWin = runsToWin;
         this.playerPosition = 1;
+        this.playersBatted = [];
     }
 
     getPlayerIndex() {
@@ -26,6 +27,13 @@ module.exports =  class Match {
         } else {
             console.log(msg);
         }
+    }
+
+    logScoreBoard() {
+        console.log(`----Match summary----`)
+        this.playersBatted.forEach((player) => {
+            console.log(`${player.name} - ${player.runsScored}${player.notOut ? "*" : ""} (${player.ballsFaced})`);
+        });
     }
     
 }

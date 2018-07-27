@@ -28,6 +28,8 @@
 
     let match = new Match(players, currentPlayersOnField, playerOnStrike, ballsLeft, runsToWin);
 
+    Array.prototype.push.apply(match.playersBatted, currentPlayersOnField);
+
     // let the match begin
     while (match.ballsLeft > 0 && match.runsToWin > 0) {
 
@@ -35,11 +37,14 @@
         if (match.ballsLeft % 6 == 0) {
             match.logCommentary(`${match.ballsLeft/6} Overs Remaining, ${match.runsToWin} runs to win`)
         }
+
+        match.playerOnStrike.ballsFaced ++;
         //Get current Ball Outcome
         let ballOutcome = match.playerOnStrike.getBallOutCome();
 
         // If player is out
         if (ballOutcome == 7) {
+            match.playerOnStrike.notOut = false;
             match.wicketsLeft--;
             ++match.playerPosition;
             match.logCommentary(`${match.playerOnStrike.name} was bowled out.`, true)
@@ -51,13 +56,16 @@
             } else {
                 // Bring the new player to strike
                 let playerIndex = match.getPlayerIndex();
-                match.currentPlayersOnField[playerIndex] = new Player(players[match.playerPosition]);
+                let newPlayer = new Player(players[match.playerPosition]);
+                match.currentPlayersOnField[playerIndex] = newPlayer;
                 match.playerOnStrike = match.currentPlayersOnField[playerIndex];
+                match.playersBatted.push(newPlayer);
                 match.logCommentary(`${match.playerOnStrike.name} has come to bat`)
             }
         } else {
+            match.playerOnStrike.runsScored += ballOutcome;
             match.runsToWin -= ballOutcome;
-           match.logCommentary(`${match.playerOnStrike.name} scores ${ballOutcome} runs`, true);
+            match.logCommentary(`${match.playerOnStrike.name} scores ${ballOutcome} runs`, true);
 
             // Change strike on odd runs
             if (ballOutcome % 2 != 0) {
@@ -79,5 +87,7 @@
     } else {
         match.logCommentary(`Bengaluru has won the match by ${match.wicketsLeft} wickets with ${match.ballsLeft} balls remaining`);
     }
+
+    match.logScoreBoard();
 
 })();
