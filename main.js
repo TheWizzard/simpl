@@ -24,52 +24,60 @@
     let playerOnStrike = currentPlayersOnField[0];
     let playerPosition = 1;
     let ballsLeft = 24;
-    let runsToWin = 25;
-    
+    let runsToWin = 40;
+
     let match = new Match(players, currentPlayersOnField, playerOnStrike, ballsLeft, runsToWin);
 
     // let the match begin
-    while(match.ballsLeft > 0 && match.runsToWin > 0) {
-        if(match.ballsLeft % 6 == 0) {
-            console.log(`${match.ballsLeft/6} Overs Remaining, ${match.runsToWin} runs to win`)
+    while (match.ballsLeft > 0 && match.runsToWin > 0) {
+
+        //Log Overs Remaining
+        if (match.ballsLeft % 6 == 0) {
+            match.logCommentary(`${match.ballsLeft/6} Overs Remaining, ${match.runsToWin} runs to win`)
         }
+        //Get current Ball Outcome
         let ballOutcome = match.playerOnStrike.getBallOutCome();
 
-        //Player is out
-        if(ballOutcome == 7) {
-            match.wicketsLeft-- ;
-            console.log(`${match.playerOnStrike.name} was bowled out.`)
+        // If player is out
+        if (ballOutcome == 7) {
+            match.wicketsLeft--;
+            ++match.playerPosition;
+            match.logCommentary(`${match.playerOnStrike.name} was bowled out.`, true)
 
-            if(++match.playerPosition > match.wicketsLeft - 1) {
-                console.log(`Bengaluru is all out.`)
+            //all wickets gone
+            if (match.wicketsLeft == 0) {
+                match.logCommentary(`Bengaluru is all out.`)
                 break;
             } else {
+                // Bring the new player to strike
                 let playerIndex = match.getPlayerIndex();
                 match.currentPlayersOnField[playerIndex] = new Player(players[match.playerPosition]);
                 match.playerOnStrike = match.currentPlayersOnField[playerIndex];
-                console.log(`${match.playerOnStrike.name} has come to bat`)
+                match.logCommentary(`${match.playerOnStrike.name} has come to bat`)
             }
         } else {
             match.runsToWin -= ballOutcome;
-            console.log(`${match.playerOnStrike.name} scores ${ballOutcome} runs`);
+           match.logCommentary(`${match.playerOnStrike.name} scores ${ballOutcome} runs`, true);
 
             // Change strike on odd runs
-            if(ballOutcome % 2 != 0) {
+            if (ballOutcome % 2 != 0) {
                 match.changeStrike();
             }
         }
+
+
+        match.ballsLeft--;
+
         // Change strike after last ball of the over
-        if(match.ballsLeft - 1 % 6 == 0){
+        if (match.ballsLeft % 6 == 0) {
             match.changeStrike();
         }
+    }
 
-        match.ballsLeft-- ;
-        }
-
-        if(match.runsToWin > 0){
-            console.log(`Bengaluru has lost the match by ${match.runsToWin} runs`);
-        } else {
-            console.log(`Bengaluru has won the match by ${match.wicketsLeft} wickets`);
-        }
+    if (match.runsToWin > 0) {
+        match.logCommentary(`Bengaluru has lost the match by ${match.runsToWin} runs`);
+    } else {
+        match.logCommentary(`Bengaluru has won the match by ${match.wicketsLeft} wickets with ${match.ballsLeft} balls remaining`);
+    }
 
 })();
